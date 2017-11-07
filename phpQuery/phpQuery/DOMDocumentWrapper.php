@@ -376,22 +376,21 @@ class DOMDocumentWrapper {
 		$metaContentType = $matches[0][0];
 		$markup = substr($markup, 0, $matches[0][1])
 			.substr($markup, $matches[0][1]+strlen($metaContentType));
-		$headPosAndLength = $this->getHeadTagPosAndLength($markup);
-		$markup = substr($markup, $headPosAndLength['pos'], $headPosAndLength['length']).$metaContentType
-			.substr($markup, $headPosAndLength['length']);
+		$posAfterHeadOpeningTag = $this->getPosAfterHeadOpeningTag($markup);
+		$markup = substr($markup, 0, $posAfterHeadOpeningTag).$metaContentType
+			.substr($markup, $posAfterHeadOpeningTag);
 		return $markup;
 	}
 	/**
 	 * Fix head position and length with attributes
 	 * @param $html
 	 */
-	private function getHeadTagPosAndLength($markup){
+	private function getPosAfterHeadOpeningTag($markup){
+
 		preg_match_all("/<head[^>]*>/is", $markup, $matches);
 		$tag = (isset($matches[0][0]))? $matches[0][0] : '';
-		return array(
-			'pos' => stripos($markup, '<head'), 
-			'length' => strlen($tag)
-		);
+		$pos = stripos($markup, '<head');
+		return $pos + strlen($tag);
 
 	}
 	protected function charsetAppendToHTML($html, $charset, $xhtml = false) {
