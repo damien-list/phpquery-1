@@ -376,10 +376,23 @@ class DOMDocumentWrapper {
 		$metaContentType = $matches[0][0];
 		$markup = substr($markup, 0, $matches[0][1])
 			.substr($markup, $matches[0][1]+strlen($metaContentType));
-		$headStart = stripos($markup, '<head>');
-		$markup = substr($markup, 0, $headStart+6).$metaContentType
-			.substr($markup, $headStart+6);
+		$headPosAndLength = $this->getHeadTagPosAndLength($markup);
+		$markup = substr($markup, $headPosAndLength['pos'], $headPosAndLength['length']).$metaContentType
+			.substr($markup, $headPosAndLength['length']);
 		return $markup;
+	}
+	/**
+	 * Fix head position and length with attributes
+	 * @param $html
+	 */
+	private function getHeadTagPosAndLength($markup){
+		preg_match_all("/<head[^>]*>/is", $markup, $matches);
+		$tag = (isset($matches[0][0]))? $matches[0][0] : '';
+		return array(
+			'pos' => stripos($markup, '<head'), 
+			'length' => strlen($tag)
+		);
+
 	}
 	protected function charsetAppendToHTML($html, $charset, $xhtml = false) {
 		// remove existing meta[type=content-type]
